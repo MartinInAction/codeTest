@@ -22,7 +22,7 @@ export default class App extends PureComponent<Props, State> {
   }
 
   componentDidMount () {
-    this.createBracket('Tournament', 8)
+    // this.createBracket('Tournament', 8)
   }
 
   render (): React$Node {

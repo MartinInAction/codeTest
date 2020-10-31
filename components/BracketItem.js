@@ -9,8 +9,8 @@ type Props = {
     index: number,
     updatePlayer: (player: Player) => Promise<*>,
     numberOfPlayers: number
-
 }
+
 type State = {
     name: string
 }
@@ -74,13 +74,15 @@ const styles = StyleSheet.create({
     borderColor: colors.white,
     margin: commonStyles.smallSpace,
     width: 90,
-    height: 30,
+    height: 40,
     paddingLeft: 5,
-    borderRadius: 3
+    borderRadius: 10
   },
   winnerText: {
     alignSelf: 'center',
     fontSize: 20,
+    position: 'absolute',
+    top: -25,
     fontWeight: '800',
     color: colors.white
   },

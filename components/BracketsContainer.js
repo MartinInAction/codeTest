@@ -72,9 +72,9 @@ export default class BracketsContainer extends PureComponent<Props, State> {
       <View style={styles.popover}>
         <Text style={styles.popoverHeader}>Who won?</Text>
         {selectedItem.map((item, index) => <View key={index}>
-          <TouchableOpacity onPress={() => this.makeWinner(item)} style={styles.popoverItem}>
-            <Text>{item.name}</Text>
-            <Text>{this.getWinStatus(item)}</Text>
+          <TouchableOpacity activeOpacity={0.8} onPress={() => this.makeWinner(item)} style={styles.popoverItem}>
+            <Text style={styles.popoverItemText}>{item.name}</Text>
+            <Text style={styles.popoverItemText}>{this.getWinStatus(item)}</Text>
           </TouchableOpacity>
         </View>)}
         <TouchableOpacity style={styles.popoverCloseButton} onPress={this.closePopover}>
@@ -162,21 +162,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '80%',
     height: 250,
-    borderRadius: 20,
-    backgroundColor: colors.white,
+    borderRadius: 10,
+    backgroundColor: colors.mud,
     shadowColor: colors.black,
     shadowOffset: {
-      width: 0,
-      height: 2
+      width: 10,
+      height: 10
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
     elevation: 5
   },
   popoverHeader: {
     top: commonStyles.space,
     alignSelf: 'center',
     fontSize: 20,
+    color: colors.white,
     position: 'absolute'
   },
   popoverCloseButton: {
@@ -189,18 +190,24 @@ const styles = StyleSheet.create({
   },
   popoverCloseButtonText: {
     fontSize: 20,
-    color: colors.black
+    color: colors.white
   },
   popoverItem: {
     flexDirection: 'row',
-    height: 30,
+    height: 45,
+    alignSelf: 'center',
     justifyContent: 'space-between',
     paddingLeft: commonStyles.smallSpace,
     paddingRight: commonStyles.smallSpace,
     alignItems: 'center',
     margin: commonStyles.space,
-    width: '80%',
+    borderRadius: 10,
+    borderColor: colors.white,
     borderWidth: 2
+  },
+  popoverItemText: {
+    fontWeight: '600',
+    color: colors.white
   },
   closeButton: {
     position: 'absolute',
