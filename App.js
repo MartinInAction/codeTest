@@ -1,114 +1,79 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+// @flow
+import React, {PureComponent} from 'react'
+import {StatusBar, SafeAreaView, StyleSheet} from 'react-native'
+import StartContainer from './components/StartContainer'
+import colors from './libs/Colors'
+import BracketsContainer from './components/BracketsContainer'
+type Player = {
+  name: string,
+  id: number
+}
+type Props = {}
+type State = {
+  bracketsArray?: Array<Player>,
+  tournamentName: string
+}
+export default class App extends PureComponent<Props, State> {
+  state = {
+    bracketsArray: undefined,
+    tournamentName: ''
+  }
 
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+  componentDidMount () {
+    this.createBracket('test', 16)
+  }
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-const App: () => React$Node = () => {
-  return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
+  render (): React$Node {
+    let {bracketsArray, tournamentName} = this.state
+    return <>
+      <StatusBar barStyle='light-content' />
+      <SafeAreaView style={styles.container}>
+        {bracketsArray ? <BracketsContainer tournamentName={tournamentName} bracket={bracketsArray} /> : <StartContainer createBracket={this.createBracket} />}
       </SafeAreaView>
     </>
-  );
-};
+  }
+
+  createBracket = (tournamentName: string, numberOfPlayers: number) => {
+    let bracketsArray = [this.groupPlayers2and2(this.createPlayers(numberOfPlayers))]
+    let numberOfFields = this.createPlayers(numberOfPlayers).length / 4
+    while (numberOfFields > 0) {
+      bracketsArray.push(this.crateBracketFieldOfPlayers(this.createPlayers(numberOfPlayers), numberOfFields))
+      numberOfFields--
+    }
+    bracketsArray.push(this.createWinnerRow())
+    this.setState({bracketsArray, tournamentName})
+  }
+
+  createPlayers = (numberOfPlayers: number) => {
+    return Array(numberOfPlayers).fill(0).map((player, index) => ({name: '', id: index}))
+  }
+
+  groupPlayers2and2 = (players: Array<Object>) => {
+    let arrays = []
+    let size = 2
+    while (players.length > 0) arrays.push(players.splice(0, size))
+    return arrays
+  }
+
+  crateBracketFieldOfPlayers = (players: Array<Object>, numberOfFields: number) => {
+    let groupN = []
+    players = players.splice(0, numberOfFields * 2)
+    while (numberOfFields > 0) {
+      // players.splice(0, 1)
+      groupN.push(...this.groupPlayers2and2(players))
+      numberOfFields--
+    }
+    return groupN
+  }
+
+  createWinnerRow = () => {
+    return this.groupPlayers2and2([{name: '', id: 100}])
+  }
+}
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-});
-
-export default App;
+  container: {
+    backgroundColor: colors.black,
+    flex: 1
+  }
+})
