@@ -1,19 +1,28 @@
 // @flow
 import React, {PureComponent} from 'react'
-import {Text, View, StyleSheet, ScrollView} from 'react-native'
+import {Text, View, StyleSheet, ScrollView, TouchableOpacity} from 'react-native'
 import commonStyles from '../libs/CommonStyles'
 import colors from '../libs/Colors'
+import BracketItem from './BracketItem'
 
 type Props = {
     bracket: Array<Object>,
-    tournamentName: string
+    tournamentName: string,
+    updatePlayer: (player: Player) => Promise<*>
 }
-type State = {}
+type State = {
+  showPopover: boolean,
+  selectedItem?: Object
+}
 export default class BracketsContainer extends PureComponent<Props, State> {
-    state = {}
+    state = {
+      showPopover: false,
+      selectedItem: undefined
+    }
 
     render (): React$Node {
       let {bracket, tournamentName} = this.props
+      let {showPopover} = this.state
       return <>
         <View style={styles.header}>
           <Text style={styles.headerText}>{tournamentName}</Text>
@@ -23,6 +32,7 @@ export default class BracketsContainer extends PureComponent<Props, State> {
             {bracket.map(this.renderBracket)}
           </ScrollView>
         </ScrollView>
+        {showPopover ? this.renderPopover() : <View />}
       </>
     }
 
@@ -33,18 +43,60 @@ export default class BracketsContainer extends PureComponent<Props, State> {
   }
 
   renderBracketGroup = (item: Array<Object>, index: number) => {
-    return <View key={index} style={styles.group}>
+    /* eslint-disable react/jsx-no-bind */
+    return <TouchableOpacity disabled={item.find((player) => player.didWin) || item.find((player) => !player.name)} key={index} style={styles.group} onPress={() => this.openPopover(item)} hitSlop={{right: 100}}>
       {item.map(this.renderItem)}
-    </View>
+    </TouchableOpacity>
+  /* eslint-enable react/jsx-no-bind */
   }
 
   renderItem = (item: Array<Object>, index: number) => {
-    return [
-      <View style={styles.item} key={index}>
-        <Text>{item.id}</Text>
-      </View>,
-      index === 0 && item.id !== 100 ? <View style={styles.groupLine} key={201} /> : <View key={200} />
-    ]
+    let {updatePlayer, numberOfPlayers} = this.props
+    return <BracketItem numberOfPlayers={numberOfPlayers} updatePlayer={updatePlayer} item={item} index={index} key={index} />
+  }
+
+  renderPopover = () => {
+  /* eslint-disable react/jsx-no-bind */
+    let {selectedItem} = this.state
+    if (!selectedItem) selectedItem = []
+    return <View style={styles.popoverContainer}>
+      <TouchableOpacity style={styles.popoverCloseArea} onPress={this.closePopover} />
+      <View style={styles.popover}>
+        <Text style={styles.popoverHeader}>Who won?</Text>
+        {selectedItem.map((item, index) => <View key={index}>
+          <TouchableOpacity onPress={() => this.makeWinner(item)} style={styles.popoverItem}>
+            <Text>{item.name}</Text>
+            <Text>{this.getWinStatus(item)}</Text>
+          </TouchableOpacity>
+        </View>)}
+        <TouchableOpacity style={styles.closeButton} onPress={this.closePopover}>
+          <Text style={styles.closeText}>X</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  }
+  /* eslint-enable react/jsx-no-bind */
+
+  getWinStatus = (item: Objecrt) => {
+    switch (item.didWin) {
+      case true: return 'WINNER'
+      case false: return 'LOOSER'
+      default: return ''
+    }
+  }
+
+  makeWinner = (item: Object) => {
+    let {updatePlayer} = this.props
+    updatePlayer({...item, didWin: true})
+    this.setState({showPopover: false, selectedItem: undefined})
+  }
+
+  closePopover = () => {
+    this.setState({showPopover: false, selectedItem: undefined})
+  }
+
+  openPopover = (selectedItem: Object) => {
+    this.setState({showPopover: true, selectedItem})
   }
 }
 
@@ -62,9 +114,10 @@ const styles = StyleSheet.create({
     flex: 1
   },
   contentContainer: {
-    flex: 1
+    alignItems: 'center',
+    padding: commonStyles.space,
+    justifyContent: 'center'
   },
-
   bracket: {
     alignItems: 'center',
     justifyContent: 'center'
@@ -76,16 +129,62 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'column'
   },
-  groupLine: {
-    height: 2,
-    width: 20,
-    backgroundColor: colors.white,
-    left: 40
+  popoverContainer: {
+    flex: 1,
+    backgroundColor: colors.blackOpacity5,
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-  item: {
+  popoverCloseArea: {
+  },
+  popover: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    width: '80%',
+    height: 250,
+    borderRadius: 20,
     backgroundColor: colors.white,
+    shadowColor: colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
+  },
+  popoverHeader: {
+    top: commonStyles.space,
+    alignSelf: 'center',
+    fontSize: 20,
+    position: 'absolute'
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    alignSelf: 'flex-end',
     height: 20,
-    margin: 5,
-    width: 50
+    width: 20
+  },
+  closeText: {
+    fontSize: 20,
+    color: colors.black
+  },
+  popoverItem: {
+    flexDirection: 'row',
+    height: 30,
+    justifyContent: 'space-between',
+    paddingLeft: commonStyles.smallSpace,
+    paddingRight: commonStyles.smallSpace,
+    alignItems: 'center',
+    margin: commonStyles.space,
+    width: '80%',
+    borderWidth: 2
   }
 })
