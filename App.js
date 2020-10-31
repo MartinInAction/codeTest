@@ -8,7 +8,7 @@ type Player = {
   name: string,
   id: number,
   didWin?: boolean,
-  firstRow: boolean
+  row: boolean
 }
 type Props = {}
 type State = {
@@ -22,7 +22,7 @@ export default class App extends PureComponent<Props, State> {
   }
 
   componentDidMount () {
-    this.createBracket('test', 16)
+    this.createBracket('Tournament', 8)
   }
 
   render (): React$Node {
@@ -30,7 +30,7 @@ export default class App extends PureComponent<Props, State> {
     return <>
       <StatusBar barStyle='light-content' />
       <SafeAreaView style={styles.container}>
-        {bracketsArray ? <BracketsContainer updatePlayer={this.updatePlayer} tournamentName={tournamentName} bracket={bracketsArray} /> : <StartContainer createBracket={this.createBracket} />}
+        {bracketsArray ? <BracketsContainer reset={this.reset} updatePlayer={this.updatePlayer} tournamentName={tournamentName} bracket={bracketsArray} /> : <StartContainer createBracket={this.createBracket} />}
       </SafeAreaView>
     </>
   }
@@ -38,39 +38,18 @@ export default class App extends PureComponent<Props, State> {
   createBracket = (tournamentName: string, numberOfPlayers: number) => {
     let bracketsArray = [this.groupPlayers2and2(this.createPlayers(numberOfPlayers))]
     let numberOfFields = this.createPlayers(numberOfPlayers).length / 4
+    let row = 2
     while (numberOfFields > 0) {
-      bracketsArray.push(this.crateBracketFieldOfPlayers(this.createPlayers(numberOfPlayers), numberOfFields))
+      bracketsArray.push(this.crateBracketFieldOfPlayers(this.createPlayers(numberOfPlayers), numberOfFields, row))
       numberOfFields--
+      row++
     }
-    bracketsArray.push(this.createWinnerRow())
+    bracketsArray.push(this.createWinnerRow(row))
     this.setState({bracketsArray, tournamentName})
   }
 
-  updatePlayer = (updatedPlayer: Player): Promise<*> => {
-    let {bracketsArray} = this.state
-    let group = bracketsArray[0].find((groups) => {
-      return groups.find((player) => {
-        return player.id === updatedPlayer.id
-      })
-    })
-    let indexOfGroup = bracketsArray[0].indexOf(group)
-    let newGroup = group.map((player) => {
-      if (player.id === updatedPlayer.id) return updatedPlayer
-      if (updatedPlayer.didWin) player = {...player, didWin: false}
-      return player
-    })
-    bracketsArray[0][indexOfGroup] = newGroup
-    this.setState({bracketsArray: [...bracketsArray]})
-    if (updatedPlayer.didWin) return this.makeWinner(updatedPlayer)
-    return Promise.resolve()
-  }
-
-  makeWinner = (updatedPlayer: Player): Promise<*> => {
-    let {bracketsArray} = this.state
-  }
-
   createPlayers = (numberOfPlayers: number) => {
-    return Array(numberOfPlayers).fill(0).map((player, index) => ({name: `PlayerId: ${index}`, id: index, firstRow: true}))
+    return Array(numberOfPlayers).fill(0).map((player, index) => ({name: `PlayerId: ${index}`, id: index, row: 1}))
   }
 
   groupPlayers2and2 = (players: Array<Object>) => {
@@ -80,9 +59,9 @@ export default class App extends PureComponent<Props, State> {
     return arrays
   }
 
-  crateBracketFieldOfPlayers = (players: Array<Object>, numberOfFields: number) => {
+  crateBracketFieldOfPlayers = (players: Array<Object>, numberOfFields: number, row: number) => {
     let groupN = []
-    players = players.map((player) => ({...player, name: '', firstRow: false}))
+    players = players.map((player) => ({...player, name: '', row}))
     players = players.splice(0, numberOfFields * 2)
     while (numberOfFields > 0) {
       // players.splice(0, 1)
@@ -92,14 +71,50 @@ export default class App extends PureComponent<Props, State> {
     return groupN
   }
 
-  createWinnerRow = () => {
-    return this.groupPlayers2and2([{name: 'WINNER', id: 100}])
+  createWinnerRow = (row: number) => {
+    return this.groupPlayers2and2([{name: '', id: 100, row}])
   }
+
+  updatePlayer = (updatedPlayer: Player): Promise<*> => {
+    let {bracketsArray} = this.state
+    let group = bracketsArray[updatedPlayer.row - 1].find((groups) => {
+      return groups.find((player) => {
+        return player.id === updatedPlayer.id
+      })
+    })
+    let indexOfGroup = bracketsArray[updatedPlayer.row - 1].indexOf(group)
+    let newGroup = group.map((player) => {
+      if (player.id === updatedPlayer.id) return {...player, name: updatedPlayer.name, didWin: updatedPlayer.didWin}
+      if (updatedPlayer.didWin) player = {...player, didWin: false}
+      return player
+    })
+    bracketsArray[updatedPlayer.row - 1][indexOfGroup] = newGroup
+    this.setState({bracketsArray: [...bracketsArray]})
+    if (updatedPlayer.didWin) return this.makeWinner(updatedPlayer)
+    return Promise.resolve()
+  }
+
+  makeWinner = (updatedPlayer: Player): Promise<*> => {
+    let {bracketsArray} = this.state
+    let nextGroup = bracketsArray[updatedPlayer.row].find((groups) => {
+      return groups.find((player) => {
+        return player.name === ''
+      })
+    })
+    let firstEmptyGroupIndex = bracketsArray[updatedPlayer.row].indexOf(nextGroup)
+    let firstEmptyPlayer = nextGroup.find((player) => player.name === '')
+    let firstEmptyPlayerIndex = nextGroup.indexOf(firstEmptyPlayer)
+    nextGroup[firstEmptyPlayerIndex] = {...firstEmptyPlayer, name: updatedPlayer.name}
+    bracketsArray[updatedPlayer.row][firstEmptyGroupIndex] = nextGroup
+    this.setState({bracketsArray: [...bracketsArray]})
+  }
+
+  reset = () => this.setState({bracketsArray: undefined})
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.black,
+    backgroundColor: colors.mud,
     flex: 1
   }
 })

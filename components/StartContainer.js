@@ -54,7 +54,7 @@ export default class StartContainer extends PureComponent<Props, State> {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.black,
+    backgroundColor: colors.mud,
     flex: 1
   },
   wrapper: {
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   button: {
     height: 55,
     width: '100%',
-    backgroundColor: colors.purple,
+    backgroundColor: colors.orange,
     alignItems: 'center',
     justifyContent: 'center'
   },

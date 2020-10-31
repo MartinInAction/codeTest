@@ -8,7 +8,8 @@ import BracketItem from './BracketItem'
 type Props = {
     bracket: Array<Object>,
     tournamentName: string,
-    updatePlayer: (player: Player) => Promise<*>
+    updatePlayer: (player: Player) => Promise<*>,
+    reset: () => void
 }
 type State = {
   showPopover: boolean,
@@ -25,7 +26,7 @@ export default class BracketsContainer extends PureComponent<Props, State> {
       let {showPopover} = this.state
       return <>
         <View style={styles.header}>
-          <Text style={styles.headerText}>{tournamentName}</Text>
+          <Text style={styles.headerText}>{tournamentName || 'Tournament'}</Text>
         </View>
         <ScrollView contentContainerStyle={styles.contentContainer} style={styles.scroll}>
           <ScrollView horizontal contentContainerStyle={styles.contentContainer} style={styles.scroll}>
@@ -33,6 +34,7 @@ export default class BracketsContainer extends PureComponent<Props, State> {
           </ScrollView>
         </ScrollView>
         {showPopover ? this.renderPopover() : <View />}
+        {this.renderCloseButton()}
       </>
     }
 
@@ -44,7 +46,7 @@ export default class BracketsContainer extends PureComponent<Props, State> {
 
   renderBracketGroup = (item: Array<Object>, index: number) => {
     /* eslint-disable react/jsx-no-bind */
-    return <TouchableOpacity disabled={item.find((player) => player.didWin) || item.find((player) => !player.name)} key={index} style={styles.group} onPress={() => this.openPopover(item)} hitSlop={{right: 100}}>
+    return <TouchableOpacity activeOpacity={0.8} disabled={item.find((player) => player.didWin) || item.find((player) => !player.name)} key={index} style={styles.group} onPress={() => this.openPopover(item)} hitSlop={{right: 100}}>
       {item.map(this.renderItem)}
     </TouchableOpacity>
   /* eslint-enable react/jsx-no-bind */
@@ -53,6 +55,12 @@ export default class BracketsContainer extends PureComponent<Props, State> {
   renderItem = (item: Array<Object>, index: number) => {
     let {updatePlayer, numberOfPlayers} = this.props
     return <BracketItem numberOfPlayers={numberOfPlayers} updatePlayer={updatePlayer} item={item} index={index} key={index} />
+  }
+
+  renderCloseButton = () => {
+    return <TouchableOpacity onPress={this.reset} style={styles.closeButton}>
+      <Text style={styles.closeButtonText}>x</Text>
+    </TouchableOpacity>
   }
 
   renderPopover = () => {
@@ -69,8 +77,8 @@ export default class BracketsContainer extends PureComponent<Props, State> {
             <Text>{this.getWinStatus(item)}</Text>
           </TouchableOpacity>
         </View>)}
-        <TouchableOpacity style={styles.closeButton} onPress={this.closePopover}>
-          <Text style={styles.closeText}>X</Text>
+        <TouchableOpacity style={styles.popoverCloseButton} onPress={this.closePopover}>
+          <Text style={styles.popoverCloseButtonText}>X</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -98,6 +106,11 @@ export default class BracketsContainer extends PureComponent<Props, State> {
   openPopover = (selectedItem: Object) => {
     this.setState({showPopover: true, selectedItem})
   }
+
+  reset = () => {
+    let {reset} = this.props
+    reset()
+  }
 }
 
 const styles = StyleSheet.create({
@@ -111,20 +124,22 @@ const styles = StyleSheet.create({
     maxWidth: '80%'
   },
   scroll: {
-    flex: 1
   },
   contentContainer: {
     alignItems: 'center',
-    padding: commonStyles.space,
-    justifyContent: 'center'
+    paddingTop: commonStyles.space
   },
   bracket: {
-    alignItems: 'center',
-    justifyContent: 'center'
+    alignItems: 'flex-start',
+    marginLeft: 0,
+    marginRight: 0,
+    margin: commonStyles.space,
+    justifyContent: 'flex-start'
   },
   group: {
     margin: 10,
-    marginLeft: commonStyles.space * 2,
+    marginBottom: 0,
+    marginRight: commonStyles.space * 2,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column'
@@ -164,7 +179,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     position: 'absolute'
   },
-  closeButton: {
+  popoverCloseButton: {
     position: 'absolute',
     top: 5,
     right: 5,
@@ -172,7 +187,7 @@ const styles = StyleSheet.create({
     height: 20,
     width: 20
   },
-  closeText: {
+  popoverCloseButtonText: {
     fontSize: 20,
     color: colors.black
   },
@@ -186,5 +201,14 @@ const styles = StyleSheet.create({
     margin: commonStyles.space,
     width: '80%',
     borderWidth: 2
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 80,
+    right: commonStyles.space
+  },
+  closeButtonText: {
+    fontSize: 20,
+    color: colors.white
   }
 })
