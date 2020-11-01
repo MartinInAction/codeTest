@@ -4,25 +4,24 @@ import {Text, View, StyleSheet, ScrollView, TouchableOpacity} from 'react-native
 import commonStyles from '../libs/CommonStyles'
 import colors from '../libs/Colors'
 import BracketItem from './BracketItem'
+import {connect} from 'react-redux'
+import Store from '../libs/Store'
+import * as PlayerHelper from '../libs/PlayerHelper'
 
-type Props = {
-    bracket: Array<Object>,
-    tournamentName: string,
-    updatePlayer: (player: Player) => Promise<*>,
-    reset: () => void
-}
+type Props = {}
 type State = {
   showPopover: boolean,
   selectedItem?: Object
 }
-export default class BracketsContainer extends PureComponent<Props, State> {
+class BracketsContainer extends PureComponent<Props, State> {
     state = {
       showPopover: false,
       selectedItem: undefined
     }
 
     render (): React$Node {
-      let {bracket, tournamentName} = this.props
+      let {appState} = Store.getState()
+      let {tournamentName, bracketsArray} = appState
       let {showPopover} = this.state
       return <>
         <View style={styles.header}>
@@ -30,7 +29,7 @@ export default class BracketsContainer extends PureComponent<Props, State> {
         </View>
         <ScrollView contentContainerStyle={styles.contentContainer} style={styles.scroll}>
           <ScrollView horizontal contentContainerStyle={styles.contentContainer} style={styles.scroll}>
-            {bracket.map(this.renderBracket)}
+            {bracketsArray.map(this.renderBracket)}
           </ScrollView>
         </ScrollView>
         {showPopover ? this.renderPopover() : <View />}
@@ -53,12 +52,12 @@ export default class BracketsContainer extends PureComponent<Props, State> {
   }
 
   renderItem = (item: Array<Object>, index: number) => {
-    let {updatePlayer, numberOfPlayers} = this.props
-    return <BracketItem numberOfPlayers={numberOfPlayers} updatePlayer={updatePlayer} item={item} index={index} key={index} />
+    let {numberOfPlayers} = this.props
+    return <BracketItem numberOfPlayers={numberOfPlayers} updatePlayer={PlayerHelper.updatePlayer} item={item} index={index} key={index} />
   }
 
   renderCloseButton = () => {
-    return <TouchableOpacity onPress={this.reset} style={styles.closeButton}>
+    return <TouchableOpacity onPress={PlayerHelper.resetBracket} style={styles.closeButton}>
       <Text style={styles.closeButtonText}>x</Text>
     </TouchableOpacity>
   }
@@ -94,8 +93,7 @@ export default class BracketsContainer extends PureComponent<Props, State> {
   }
 
   makeWinner = (item: Object) => {
-    let {updatePlayer} = this.props
-    updatePlayer({...item, didWin: true})
+    PlayerHelper.updatePlayer({...item, didWin: true})
     this.setState({showPopover: false, selectedItem: undefined})
   }
 
@@ -112,6 +110,8 @@ export default class BracketsContainer extends PureComponent<Props, State> {
     reset()
   }
 }
+
+export default connect(state => state)(BracketsContainer)
 
 const styles = StyleSheet.create({
   header: {

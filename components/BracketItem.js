@@ -21,10 +21,14 @@ export default class BracketItem extends PureComponent<Props, State> {
       name: props.item.name
     }
   }
-  // eslint-disable-next-line
-  componentWillReceiveProps (nextProps: Props, nextState: State) {
-    this.setState({name: nextProps.item.name})
+
+  getSnapshotBeforeUpdate (prevProps: Props, prevState: State): ?Object {
+    if (prevProps.item.name !== this.props.item.name)
+      this.setState({name: this.props.item.name})
+    return null
   }
+
+  componentDidUpdate () {}
 
   render (): React$Node {
     let {item, index} = this.props

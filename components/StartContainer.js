@@ -3,9 +3,8 @@ import React, {PureComponent} from 'react'
 import {KeyboardAvoidingView, StyleSheet, View, Pressable, Text, TextInput, Platform} from 'react-native'
 import colors from '../libs/Colors'
 import commonStyles from '../libs/CommonStyles'
-type Props = {
-    createBracket: (tournamentName: string, numberOfPlayers: number) => Promise<*>
-}
+import {createBracket} from '../libs/BracketHelper'
+type Props = {}
 type State = {
     numberOfPlayers: number,
     tournamentName: string
@@ -47,7 +46,6 @@ export default class StartContainer extends PureComponent<Props, State> {
 
     createBracket = () => {
       let {tournamentName, numberOfPlayers} = this.state
-      let {createBracket} = this.props
       createBracket(tournamentName, Number(numberOfPlayers))
     }
 }
