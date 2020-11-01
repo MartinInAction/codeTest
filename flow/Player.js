@@ -4,5 +4,5 @@ type Player = {
     name: string,
     id: number,
     didWin?: boolean,
-    row: boolean
+    row: number
 }

@@ -15,13 +15,15 @@ export let createBracket = (tournamentName: string, numberOfPlayers: number) => 
   Store.dispatch(Actions.createBracket(bracketsArray, tournamentName))
 }
 
-export let createPlayers = (numberOfPlayers: number) => {
-  return Array(numberOfPlayers).fill(0).map((player, index) => ({name: `PlayerId: ${index}`, id: index, row: 1}))
+export let createPlayers = (numberOfPlayers: number): Array<Player> => {
+  let players: Array<Player> = Array(numberOfPlayers).fill(0)
+  return players.map((player, index) => ({name: `PlayerId: ${index}`, id: index, row: 1}))
 }
 
-export let groupPlayers2and2 = (players: Array<Object>) => {
-  let arrays = []
+export let groupPlayers2and2 = (players: Array<Player>) => {
+  let arrays: Array<Player> = []
   let size = 2
+  // $FlowFixMe
   while (players.length > 0) arrays.push(players.splice(0, size))
   return arrays
 }

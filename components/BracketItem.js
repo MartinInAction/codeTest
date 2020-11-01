@@ -8,7 +8,6 @@ type Props = {
     item: Object,
     index: number,
     updatePlayer: (player: Player) => Promise<*>,
-    numberOfPlayers: number
 }
 
 type State = {

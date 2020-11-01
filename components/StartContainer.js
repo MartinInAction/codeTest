@@ -40,9 +40,9 @@ export default class StartContainer extends PureComponent<Props, State> {
       </Pressable>
     }
 
-    onChangeNoPlayers = (numberOfPlayers: number) => this.setState({numberOfPlayers})
+  onChangeNoPlayers = (numberOfPlayers: string) => this.setState({numberOfPlayers: Number(numberOfPlayers)})
 
-    onChangeTournamentName = (tournamentName: number) => this.setState({tournamentName})
+    onChangeTournamentName = (tournamentName: string) => this.setState({tournamentName})
 
     createBracket = () => {
       let {tournamentName, numberOfPlayers} = this.state

@@ -34,7 +34,7 @@ export let makeWinner = (updatedPlayer: Player): Promise<*> => {
   let firstEmptyPlayerIndex = nextGroup.indexOf(firstEmptyPlayer)
   nextGroup[firstEmptyPlayerIndex] = {...firstEmptyPlayer, name: updatedPlayer.name}
   bracketsArray[updatedPlayer.row][firstEmptyGroupIndex] = nextGroup
-  Store.dispatch(Actions.createBracket(bracketsArray))
+  return Store.dispatch(Actions.createBracket(bracketsArray))
 }
 
 export let resetBracket = () => Store.dispatch(Actions.resetBracket())

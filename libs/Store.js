@@ -15,5 +15,5 @@ export default {
     if (!action) return Promise.reject(new Error('Should have action'))
     return Promise.resolve(STORE.dispatch(action))
   },
-  getState: (): ReduxStateWithUser => STORE.getState()
+  getState: (): Object => STORE.getState()
 }

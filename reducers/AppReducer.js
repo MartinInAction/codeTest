@@ -7,7 +7,7 @@ module.exports = (state: Object = {}, action: Object) => {
       ...action.user
     }
     case 'CREATE_BRACKET':
-      return {bracketsArray: action.bracketsArray, tournamentName: action.tournamentName || ''}
+      return {bracketsArray: action.bracketsArray, tournamentName: action.tournamentName || state.tournamentName || ''}
     case 'RESET_BRACKET':
     default: return {}
   }

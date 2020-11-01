@@ -52,8 +52,7 @@ class BracketsContainer extends PureComponent<Props, State> {
   }
 
   renderItem = (item: Array<Object>, index: number) => {
-    let {numberOfPlayers} = this.props
-    return <BracketItem numberOfPlayers={numberOfPlayers} updatePlayer={PlayerHelper.updatePlayer} item={item} index={index} key={index} />
+    return <BracketItem updatePlayer={PlayerHelper.updatePlayer} item={item} index={index} key={index} />
   }
 
   renderCloseButton = () => {
@@ -84,7 +83,7 @@ class BracketsContainer extends PureComponent<Props, State> {
   }
   /* eslint-enable react/jsx-no-bind */
 
-  getWinStatus = (item: Objecrt) => {
+  getWinStatus = (item: Player) => {
     switch (item.didWin) {
       case true: return 'WINNER'
       case false: return 'LOOSER'
@@ -92,7 +91,7 @@ class BracketsContainer extends PureComponent<Props, State> {
     }
   }
 
-  makeWinner = (item: Object) => {
+  makeWinner = (item: Player) => {
     PlayerHelper.updatePlayer({...item, didWin: true})
     this.setState({showPopover: false, selectedItem: undefined})
   }
@@ -101,13 +100,8 @@ class BracketsContainer extends PureComponent<Props, State> {
     this.setState({showPopover: false, selectedItem: undefined})
   }
 
-  openPopover = (selectedItem: Object) => {
+  openPopover = (selectedItem: Array<Player>) => {
     this.setState({showPopover: true, selectedItem})
-  }
-
-  reset = () => {
-    let {reset} = this.props
-    reset()
   }
 }
 
