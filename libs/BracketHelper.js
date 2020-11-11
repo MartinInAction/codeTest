@@ -31,9 +31,12 @@ export let groupPlayers2and2 = (players: Array<Player>) => {
 export let crateBracketFieldOfPlayers = (players: Array<Object>, numberOfFields: number, row: number) => {
   let groupN = []
   players = players.map((player) => ({...player, name: '', row}))
-  players = players.splice(0, numberOfFields * 2)
+  row--
+  while (row > 0) {
+    players = players.splice(0, players.length / 2)
+    row--
+  }
   while (numberOfFields > 0) {
-    // players.splice(0, 1)
     groupN.push(...groupPlayers2and2(players))
     numberOfFields--
   }
