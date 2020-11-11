@@ -11,6 +11,7 @@ export let createBracket = (tournamentName: string, numberOfPlayers: number) => 
     numberOfFields--
     row++
   }
+  bracketsArray = bracketsArray.filter((array) => array.length > 0)
   bracketsArray.push(createWinnerRow(row))
   Store.dispatch(Actions.createBracket(bracketsArray, tournamentName))
 }
@@ -37,6 +38,7 @@ export let crateBracketFieldOfPlayers = (players: Array<Object>, numberOfFields:
     row--
   }
   while (numberOfFields > 0) {
+    if (players.length === 1) break
     groupN.push(...groupPlayers2and2(players))
     numberOfFields--
   }
